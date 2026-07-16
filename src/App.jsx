@@ -1,8 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 
 const HomePage = lazy(() => import("./pages/HomePage.jsx").then((m) => ({ default: m.HomePage })));
-const UmbrelHomePage = lazy(() => import("./pages/UmbrelHomePage.jsx").then((m) => ({ default: m.UmbrelHomePage })));
-const UmbrelProPage = lazy(() => import("./pages/UmbrelProPage.jsx").then((m) => ({ default: m.UmbrelProPage })));
 const ProfitWebPage = lazy(() => import("./pages/ProfitWebPage.jsx").then((m) => ({ default: m.ProfitWebPage })));
 const ProfitUltraPage = lazy(() => import("./pages/ProfitUltraPage.jsx").then((m) => ({ default: m.ProfitUltraPage })));
 const PlanosPage = lazy(() => import("./pages/PlanosPage.jsx").then((m) => ({ default: m.PlanosPage })));
@@ -35,8 +33,6 @@ export default function App() {
     "/contato": ContatoPage,
     "/profit-web": ProfitWebPage,
     "/profit-ultra": ProfitUltraPage,
-    "/umbrel-pro": UmbrelProPage,
-    "/umbrel-home": UmbrelHomePage,
   };
 
   const LazyPage = routes[path] || HomePage;

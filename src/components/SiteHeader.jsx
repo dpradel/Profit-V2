@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { navLinks } from "../data/siteData.jsx";
 import { Logo } from "./Logo.jsx";
+import flagBr from "../assets/flag-br.svg";
 
 function NavItem({ link }) {
   if (link.children) {
@@ -41,7 +42,7 @@ export function SiteHeader() {
       </nav>
 
       <div className="nav-actions">
-        <img src="https://umbrel.com/flags/br.svg" alt="Brazil" className="flag" />
+        <img src={flagBr} alt="Brazil" className="flag" />
         <button
           className="menu-button"
           type="button"
