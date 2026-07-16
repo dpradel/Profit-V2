@@ -10,16 +10,16 @@ import mockupLaptop from "../assets/home/mockup-laptop.webp";
 import mockupTablet from "../assets/home/mockup-tablet.webp";
 import mockupPhone from "../assets/home/mockup-phone.webp";
 
-// HQ tier (1920x1080/half, 10.1MB) was too heavy — too much scroll lag on
-// scrub. Sticking with the standard tier below.
-const HERO_VIDEO_SRC = `${import.meta.env.BASE_URL || "/"}profit-ultra-hero-matte.mp4`;
+// TEMP: back on the HQ tier per request — swap to "profit-ultra-hero-matte.mp4"
+// (+ COMPOSITE_WIDTH/HEIGHT 960/540) if it's too heavy again (it was, last time).
+const HERO_VIDEO_SRC = `${import.meta.env.BASE_URL || "/"}profit-ultra-hero-matte-hq.mp4`;
 // The mp4 stacks two plain (non-alpha) frames: color on top, a white-on-black
 // luma matte on the bottom. Safari (and every other browser) can decode
 // yuv420p H.264 without trouble — real per-pixel alpha video has never been
 // reliable in <video> across browsers, so we composite it ourselves onto a
 // <canvas> each frame using the matte as the alpha channel.
-const COMPOSITE_WIDTH = 960;
-const COMPOSITE_HEIGHT = 540;
+const COMPOSITE_WIDTH = 1920;
+const COMPOSITE_HEIGHT = 1080;
 const ULTRA_LOGO = `${import.meta.env.BASE_URL || "/"}logo-profit-ultra.svg`;
 const BROKER_LOGO = (file) => `${import.meta.env.BASE_URL || "/"}logos-corretoras/${file}`;
 
@@ -229,11 +229,12 @@ function UltraHero() {
       ctx.putImageData(colorData, 0, 0);
     };
 
+    // Reduced motion only — the scroll-driven scrub now also runs on mobile
+    // (see .pu-hero-stage's sticky pin in profit-ultra.css), matching the
+    // desktop experience instead of holding a static frame.
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isMobile = window.innerWidth <= 1024;
 
-    // Mobile / reduced motion: hold on the front-view frame, no scrub
-    if (isMobile || prefersReducedMotion) {
+    if (prefersReducedMotion) {
       const onMeta = () => { halfH = video.videoHeight / 2; video.currentTime = video.duration || 0; };
       const onSeeked = () => drawComposite();
       if (video.readyState >= 1) onMeta();

@@ -417,34 +417,13 @@
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
-  .pw-hero {
-    height: auto;
-  }
-
+  /* Keep the sticky pin + scroll-scrub fade (same as desktop) — 100dvh
+     instead of 100vh so it doesn't jump as the address bar shows/hides. */
   .pw-hero-stage {
-    position: relative;
-    height: auto;
-    min-height: 100vh;
+    height: 100dvh;
     padding: 140px 0 60px;
     justify-content: flex-start;
     gap: 40px;
-  }
-
-  .pw-hero-copy {
-    position: relative;
-    top: auto;
-    left: auto;
-    translate: none;
-    opacity: 1;
-  }
-
-  .pw-hero.is-visible .pw-hero-copy {
-    animation: none;
-  }
-
-  .pw-hero-video-frame {
-    transform: none;
-    margin-bottom: 0;
   }
 
   .pw-adv {

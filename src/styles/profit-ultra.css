@@ -1072,14 +1072,18 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .pu-hero {
-    height: auto;
-  }
+  /* Keep the sticky pin + scroll-scrub (same as desktop) — 100dvh instead
+     of 100vh so it doesn't jump as the address bar shows/hides. */
   .pu-hero-stage {
-    position: relative;
-    height: auto;
-    min-height: 100vh;
-    padding: 140px 0 60px;
+    height: 100dvh;
+  }
+  /* Inside Track's -60vh pull (below) is tuned for the desktop hero's
+     proportions — it's what makes the "rises over the hero" parallax work
+     there. On mobile, Inside Track also switches to a taller single-column
+     layout (.pu-inside-inner below), so the same pull overshoots badly and
+     buries it in the hero. Just let it flow normally instead. */
+  .pu-inside {
+    margin-top: 0;
   }
   .pu-features-grid {
     grid-template-columns: 1fr;

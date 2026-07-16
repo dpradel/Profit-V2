@@ -48,11 +48,12 @@ export function ProfitWebHero() {
       ctx.putImageData(colorData, 0, 0);
     };
 
-    const isMobile = window.innerWidth <= 900;
+    // Reduced motion only — the scroll-driven scrub now also runs on mobile
+    // (see .pw-hero-stage's sticky pin in profit-web.css), matching the
+    // desktop experience instead of just autoplaying once.
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // Mobile / reduced motion: play the opening once instead of scrubbing
-    if (isMobile || prefersReducedMotion) {
+    if (prefersReducedMotion) {
       const onMeta = () => { halfH = video.videoHeight / 2; };
       if (video.readyState >= 1) onMeta();
       else video.addEventListener("loadedmetadata", onMeta, { once: true });

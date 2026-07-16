@@ -15719,7 +15719,7 @@ input {
     gap: 5px;
     border: 0;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.06);
+    background: transparent;
     padding: 0;
     cursor: pointer;
   }
@@ -20108,7 +20108,7 @@ input {
 
   .resource-power-card {
     width: min(360px, calc(100vw - 48px));
-    height: 488px;
+    height: 420px;
     padding: 24px;
   }
 
@@ -20152,7 +20152,7 @@ input {
     left: 18px;
     right: 18px;
     bottom: 0;
-    height: 236px;
+    height: 300px;
     border-radius: 10px 10px 0 0;
     /* The mockup scenes are built from absolutely positioned children
        calibrated for the desktop box — shrinking this container via
