@@ -310,6 +310,8 @@
 
 .qs-sobre-media,
 .qs-uniao-media {
+  align-self: stretch;
+  height: 100%;
   border-radius: 20px;
   overflow: hidden;
   border: 1px solid var(--line);
