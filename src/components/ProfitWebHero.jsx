@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import { Button } from "./Button.jsx";
 
-// TEMP: comparing quality/size against the smaller version — swap to
-// "profitweb-banner-matte.mp4" (+ COMPOSITE_WIDTH/HEIGHT 1280/867) once decided.
-const VIDEO_SRC = `${import.meta.env.BASE_URL || "/"}profitweb-banner-matte-hq.mp4`;
-const COMPOSITE_WIDTH = 1920;
-const COMPOSITE_HEIGHT = 1300;
+// TEMP: testing the standard tier against the HQ one — swap back to
+// "profitweb-banner-matte-hq.mp4" (+ COMPOSITE_WIDTH/HEIGHT 1920/1300) if
+// the standard tier's quality isn't good enough.
+const VIDEO_SRC = `${import.meta.env.BASE_URL || "/"}profitweb-banner-matte.mp4`;
+const COMPOSITE_WIDTH = 1280;
+const COMPOSITE_HEIGHT = 867;
 
 export function ProfitWebHero() {
   const sectionRef = useRef(null);
