@@ -139,6 +139,13 @@ input {
   letter-spacing: -0.02em;
   color: #fff;
   white-space: nowrap;
+  transition: color 0.18s ease, opacity 0.18s ease;
+}
+
+.nav-links a:hover,
+.nav-dropdown__trigger:hover,
+.mobile-panel a:hover {
+  color: var(--blue);
 }
 
 .nav-actions {
