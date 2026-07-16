@@ -1090,15 +1090,41 @@
     gap: 20px;
   }
   .pu-hero-media-wrap {
+    /* Fixed share of the stage instead of flex:1 — the copy block below
+       has no flex-basis of its own, so it was sizing to its natural
+       content height first and leaving the video whatever was left
+       (often a sliver). Giving the video a guaranteed ~48% keeps both
+       halves visible regardless of copy length. */
     position: relative;
     inset: auto;
     width: 100%;
-    flex: 1;
+    flex: 0 0 48%;
     min-height: 0;
   }
   .pu-hero-copy {
     padding: 0 12px;
     transform: none;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .pu-hero-logo {
+    height: 30px;
+    margin-bottom: 12px;
+  }
+  .pu-hero-title {
+    font-size: clamp(22px, 6.5vw, 30px);
+    margin-bottom: 18px;
+  }
+  .pu-hero .button-row {
+    gap: 10px;
+  }
+  .pu-hero-pill {
+    margin-top: 16px;
   }
   /* Inside Track's -60vh pull (below) is tuned for the desktop hero's
      proportions — it's what makes the "rises over the hero" parallax work
@@ -1128,7 +1154,19 @@
   }
   .pu-remote-card {
     grid-template-columns: 1fr;
-    padding: 44px 36px;
+    padding: 36px 28px;
+    gap: 8px;
+  }
+  .pu-remote-visual {
+    /* Fixed 320px height didn't match the mockup's 560:324 aspect once
+       the card narrowed to mobile width — ScaleToFit centers the scaled
+       content, so the leftover height showed as dead space above/below
+       it (and the mockup's own accent line looked like it was "floating"
+       in that gap). Sizing the box to the same aspect ratio removes the
+       letterboxing entirely. */
+    height: auto;
+    aspect-ratio: 560 / 324;
+    min-height: 0;
   }
   .pu-plan-body {
     grid-template-columns: 1fr;
