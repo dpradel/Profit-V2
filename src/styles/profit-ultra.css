@@ -222,7 +222,16 @@
   transform-origin: center 62%;
   will-change: transform;
 }
-.pu-hero-media video {
+.pu-hero-video-source {
+  /* Decode source only — the composited, alpha-masked result is painted
+     onto .pu-hero-canvas instead (see UltraHero in ProfitUltraPage.jsx). */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.pu-hero-canvas {
   width: 100%;
   height: 100%;
   object-fit: cover;

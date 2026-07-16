@@ -9,7 +9,16 @@ import mockupLaptop from "../assets/home/mockup-laptop.webp";
 import mockupTablet from "../assets/home/mockup-tablet.webp";
 import mockupPhone from "../assets/home/mockup-phone.webp";
 
-const HERO_VIDEO_SRC = `${import.meta.env.BASE_URL || "/"}profit-ultra-hero.webm`;
+// TEMP: comparing quality/size against the smaller version — swap back to
+// "profit-ultra-hero-matte.mp4" (+ COMPOSITE_WIDTH/HEIGHT 960/540) once decided.
+const HERO_VIDEO_SRC = `${import.meta.env.BASE_URL || "/"}profit-ultra-hero-matte-hq.mp4`;
+// The mp4 stacks two plain (non-alpha) frames: color on top, a white-on-black
+// luma matte on the bottom. Safari (and every other browser) can decode
+// yuv420p H.264 without trouble — real per-pixel alpha video has never been
+// reliable in <video> across browsers, so we composite it ourselves onto a
+// <canvas> each frame using the matte as the alpha channel.
+const COMPOSITE_WIDTH = 1920;
+const COMPOSITE_HEIGHT = 1080;
 const ULTRA_LOGO = `${import.meta.env.BASE_URL || "/"}logo-profit-ultra.svg`;
 const BROKER_LOGO = (file) => `${import.meta.env.BASE_URL || "/"}logos-corretoras/${file}`;
 
@@ -182,6 +191,7 @@ function HeroBackground() {
 function UltraHero() {
   const sectionRef = useRef(null);
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
   const mediaRef = useRef(null);
 
   // Cursor position feeds the interactive background via CSS vars.
@@ -224,22 +234,52 @@ function UltraHero() {
   useEffect(() => {
     const el = sectionRef.current;
     const video = videoRef.current;
+    const canvas = canvasRef.current;
     const media = mediaRef.current;
-    if (!el || !video) return;
+    if (!el || !video || !canvas) return;
 
     const entranceRaf = requestAnimationFrame(() => el.classList.add("is-visible"));
+
+    // The source video is two stacked plain frames (color on top, a
+    // white-on-black luma matte on the bottom) — read both halves into
+    // off-screen canvases and use the matte's red channel as alpha.
+    canvas.width = COMPOSITE_WIDTH;
+    canvas.height = COMPOSITE_HEIGHT;
+    const ctx = canvas.getContext("2d");
+    const colorCanvas = document.createElement("canvas");
+    const maskCanvas = document.createElement("canvas");
+    colorCanvas.width = maskCanvas.width = COMPOSITE_WIDTH;
+    colorCanvas.height = maskCanvas.height = COMPOSITE_HEIGHT;
+    const colorCtx = colorCanvas.getContext("2d", { willReadFrequently: true });
+    const maskCtx = maskCanvas.getContext("2d", { willReadFrequently: true });
+
+    let halfH = 0;
+    const drawComposite = () => {
+      if (!halfH || !video.videoWidth) return;
+      colorCtx.drawImage(video, 0, 0, video.videoWidth, halfH, 0, 0, COMPOSITE_WIDTH, COMPOSITE_HEIGHT);
+      maskCtx.drawImage(video, 0, halfH, video.videoWidth, halfH, 0, 0, COMPOSITE_WIDTH, COMPOSITE_HEIGHT);
+      const colorData = colorCtx.getImageData(0, 0, COMPOSITE_WIDTH, COMPOSITE_HEIGHT);
+      const maskData = maskCtx.getImageData(0, 0, COMPOSITE_WIDTH, COMPOSITE_HEIGHT);
+      const cd = colorData.data;
+      const md = maskData.data;
+      for (let i = 0; i < cd.length; i += 4) cd[i + 3] = md[i];
+      ctx.putImageData(colorData, 0, 0);
+    };
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const isMobile = window.innerWidth <= 1024;
 
     // Mobile / reduced motion: hold on the front-view frame, no scrub
     if (isMobile || prefersReducedMotion) {
-      const onMeta = () => { video.currentTime = video.duration || 0; };
+      const onMeta = () => { halfH = video.videoHeight / 2; video.currentTime = video.duration || 0; };
+      const onSeeked = () => drawComposite();
       if (video.readyState >= 1) onMeta();
       else video.addEventListener("loadedmetadata", onMeta, { once: true });
+      video.addEventListener("seeked", onSeeked);
       return () => {
         cancelAnimationFrame(entranceRaf);
         video.removeEventListener("loadedmetadata", onMeta);
+        video.removeEventListener("seeked", onSeeked);
       };
     }
 
@@ -249,7 +289,7 @@ function UltraHero() {
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
     let duration = 0;
-    const onMeta = () => { duration = video.duration || 0; };
+    const onMeta = () => { duration = video.duration || 0; halfH = video.videoHeight / 2; };
     if (video.readyState >= 1) onMeta();
     else video.addEventListener("loadedmetadata", onMeta);
 
@@ -272,6 +312,8 @@ function UltraHero() {
         const t = (1 - videoP) * duration;
         if (Math.abs(video.currentTime - t) > 0.005) video.currentTime = t;
       }
+
+      drawComposite();
 
       if (copy) {
         const cp = clamp(smooth / 0.4, 0, 1);
@@ -299,11 +341,19 @@ function UltraHero() {
   return (
     <section className="pu-hero" ref={sectionRef}>
       <div className="pu-hero-stage">
-        {/* Renders behind the alpha video so the laptop floats over it. */}
+        {/* Renders behind the composited video so the laptop floats over it. */}
         <HeroBackground />
         <div className="pu-hero-media-wrap" aria-hidden="true">
           <div className="pu-hero-media" ref={mediaRef}>
-            <video ref={videoRef} src={HERO_VIDEO_SRC} muted playsInline preload="auto" />
+            <video
+              ref={videoRef}
+              src={HERO_VIDEO_SRC}
+              muted
+              playsInline
+              preload="auto"
+              className="pu-hero-video-source"
+            />
+            <canvas ref={canvasRef} className="pu-hero-canvas" />
           </div>
         </div>
         <div className="pu-hero-vignette" aria-hidden="true" />

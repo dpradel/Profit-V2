@@ -1,28 +1,75 @@
 import { useEffect, useRef } from "react";
 import { Button } from "./Button.jsx";
 
-const VIDEO_SRC = `${import.meta.env.BASE_URL || "/"}profitweb-banner-notebook-old.webm`;
+// TEMP: comparing quality/size against the smaller version — swap to
+// "profitweb-banner-matte.mp4" (+ COMPOSITE_WIDTH/HEIGHT 1280/867) once decided.
+const VIDEO_SRC = `${import.meta.env.BASE_URL || "/"}profitweb-banner-matte-hq.mp4`;
+const COMPOSITE_WIDTH = 1920;
+const COMPOSITE_HEIGHT = 1300;
 
 export function ProfitWebHero() {
   const sectionRef = useRef(null);
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     const el = sectionRef.current;
     const video = videoRef.current;
-    if (!el || !video) return;
+    const canvas = canvasRef.current;
+    if (!el || !video || !canvas) return;
 
     const entranceRaf = requestAnimationFrame(() => el.classList.add("is-visible"));
+
+    // The source video is two stacked plain frames (color on top, a
+    // white-on-black luma matte on the bottom) — read both halves into
+    // off-screen canvases and use the matte's red channel as alpha. Real
+    // per-pixel alpha in <video> has never been reliable across browsers
+    // (Safari shows a solid matte instead of transparency), so we
+    // composite it ourselves instead of relying on native alpha decode.
+    canvas.width = COMPOSITE_WIDTH;
+    canvas.height = COMPOSITE_HEIGHT;
+    const ctx = canvas.getContext("2d");
+    const colorCanvas = document.createElement("canvas");
+    const maskCanvas = document.createElement("canvas");
+    colorCanvas.width = maskCanvas.width = COMPOSITE_WIDTH;
+    colorCanvas.height = maskCanvas.height = COMPOSITE_HEIGHT;
+    const colorCtx = colorCanvas.getContext("2d", { willReadFrequently: true });
+    const maskCtx = maskCanvas.getContext("2d", { willReadFrequently: true });
+
+    let halfH = 0;
+    const drawComposite = () => {
+      if (!halfH || !video.videoWidth) return;
+      colorCtx.drawImage(video, 0, 0, video.videoWidth, halfH, 0, 0, COMPOSITE_WIDTH, COMPOSITE_HEIGHT);
+      maskCtx.drawImage(video, 0, halfH, video.videoWidth, halfH, 0, 0, COMPOSITE_WIDTH, COMPOSITE_HEIGHT);
+      const colorData = colorCtx.getImageData(0, 0, COMPOSITE_WIDTH, COMPOSITE_HEIGHT);
+      const maskData = maskCtx.getImageData(0, 0, COMPOSITE_WIDTH, COMPOSITE_HEIGHT);
+      const cd = colorData.data;
+      const md = maskData.data;
+      for (let i = 0; i < cd.length; i += 4) cd[i + 3] = md[i];
+      ctx.putImageData(colorData, 0, 0);
+    };
 
     const isMobile = window.innerWidth <= 900;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // Mobile / reduced motion: play the opening once instead of scrubbing
     if (isMobile || prefersReducedMotion) {
+      const onMeta = () => { halfH = video.videoHeight / 2; };
+      if (video.readyState >= 1) onMeta();
+      else video.addEventListener("loadedmetadata", onMeta, { once: true });
+
+      let playing = false;
+      let mobileRafId;
+      const mobileTick = () => {
+        drawComposite();
+        if (playing) mobileRafId = requestAnimationFrame(mobileTick);
+      };
       const playObs = new IntersectionObserver(
         ([e]) => {
           if (e.isIntersecting) {
             video.play().catch(() => {});
+            playing = true;
+            mobileRafId = requestAnimationFrame(mobileTick);
             playObs.disconnect();
           }
         },
@@ -31,7 +78,10 @@ export function ProfitWebHero() {
       playObs.observe(el);
       return () => {
         cancelAnimationFrame(entranceRaf);
+        cancelAnimationFrame(mobileRafId);
+        playing = false;
         playObs.disconnect();
+        video.removeEventListener("loadedmetadata", onMeta);
       };
     }
 
@@ -42,7 +92,7 @@ export function ProfitWebHero() {
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
     let duration = 0;
-    const onMeta = () => { duration = video.duration || 0; };
+    const onMeta = () => { duration = video.duration || 0; halfH = video.videoHeight / 2; };
     if (video.readyState >= 1) onMeta();
     else video.addEventListener("loadedmetadata", onMeta);
 
@@ -61,6 +111,8 @@ export function ProfitWebHero() {
         const t = smooth * duration;
         if (Math.abs(video.currentTime - t) > 0.005) video.currentTime = t;
       }
+
+      drawComposite();
 
       if (copy) {
         const cp = clamp(smooth / 0.4, 0, 1);
@@ -109,12 +161,13 @@ export function ProfitWebHero() {
           <div className="pw-hero-video-glow" aria-hidden="true" />
           <video
             ref={videoRef}
-            className="pw-hero-video"
             src={VIDEO_SRC}
             muted
             playsInline
             preload="auto"
+            className="pw-hero-video-source"
           />
+          <canvas ref={canvasRef} className="pw-hero-video" />
         </div>
       </div>
     </section>

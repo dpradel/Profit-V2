@@ -308,15 +308,46 @@ function useParallax(strength = 32) {
   return ref;
 }
 
+/* Grid auto-sizing has no way to know the image should match the copy
+   column's height (it sizes each row to the taller item's own content/
+   aspect-ratio height) — measure the copy block directly and apply its
+   height to the media container, so the image is never taller or
+   shorter than the adjacent text regardless of how much copy there is. */
+function useMatchHeight() {
+  const sourceRef = useRef(null);
+  const targetRef = useRef(null);
+  useEffect(() => {
+    const source = sourceRef.current;
+    const target = targetRef.current;
+    if (!source || !target) return;
+    // Below 900px the section stacks to a single column (see quemsomos.css) —
+    // the image should follow its own aspect ratio there, not the copy's height.
+    const mq = window.matchMedia("(min-width: 901px)");
+    const apply = () => {
+      target.style.height = mq.matches ? `${source.offsetHeight}px` : "";
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(source);
+    mq.addEventListener("change", apply);
+    return () => {
+      ro.disconnect();
+      mq.removeEventListener("change", apply);
+    };
+  }, []);
+  return [sourceRef, targetRef];
+}
+
 function SobreSection() {
   const ref = useReveal(0.12);
   const parallaxRef = useParallax(38);
+  const [copyRef, mediaRef] = useMatchHeight();
   return (
     <section className="qs-sobre" ref={ref}>
-      <div className="qs-sobre-media">
+      <div className="qs-sobre-media" ref={mediaRef}>
         <img ref={parallaxRef} src={sobreImg} alt="Escritório da Nelogica" loading="lazy" />
       </div>
-      <div className="qs-sobre-copy">
+      <div className="qs-sobre-copy" ref={copyRef}>
         <span className="qs-eyebrow">Sobre a Nelogica</span>
         <h2 className="qs-h2">Transformar e democratizar o mercado financeiro</h2>
         <p>
@@ -341,9 +372,10 @@ function SobreSection() {
 
 function UniaoSection() {
   const ref = useReveal(0.12);
+  const [copyRef, mediaRef] = useMatchHeight();
   return (
     <section className="qs-uniao" ref={ref}>
-      <div className="qs-uniao-copy">
+      <div className="qs-uniao-copy" ref={copyRef}>
         <span className="qs-eyebrow">Nosso time</span>
         <h2 className="qs-h2">União de esforços</h2>
         <p>
@@ -353,7 +385,7 @@ function UniaoSection() {
           mais utilizados do mercado financeiro da América Latina.
         </p>
       </div>
-      <div className="qs-uniao-media">
+      <div className="qs-uniao-media" ref={mediaRef}>
         <img src={uniaoImg} alt="Equipes da Nelogica trabalhando juntas" loading="lazy" />
       </div>
     </section>

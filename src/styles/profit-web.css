@@ -151,6 +151,16 @@
   z-index: -1;
 }
 
+.pw-hero-video-source {
+  /* Decode source only — the composited, alpha-masked result is painted
+     onto .pw-hero-video (now a <canvas>) instead. See ProfitWebHero.jsx. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .pw-hero-video {
   position: relative;
   width: 100%;
