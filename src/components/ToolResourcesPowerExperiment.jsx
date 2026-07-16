@@ -344,6 +344,7 @@ export function ToolResourcesPowerExperiment() {
                 const signedDistance = getSignedDistance(index, activeIndex, filteredTools.length);
                 const distance = Math.abs(signedDistance);
                 const isActive = distance === 0;
+                const isOffstage = distance > 2;
                 const isUltraOnly = tool.plans.length === 1 && tool.plans[0] === "Profit Ultra";
                 const hasForegroundAnimation = foregroundAnimationToolIds.has(tool.id);
 
@@ -353,7 +354,7 @@ export function ToolResourcesPowerExperiment() {
                       distance > 0 && distance <= 2 ? " is-side" : ""
                     }${signedDistance < 0 ? " is-prev" : ""}${signedDistance > 0 ? " is-next" : ""}${
                       hasForegroundAnimation ? " has-foreground-animation" : ""
-                    }`}
+                    }${isOffstage ? " is-offstage" : ""}`}
                     key={tool.id}
                     style={{
                       "--tool-tone-a": tool.theme[0],
@@ -387,7 +388,7 @@ export function ToolResourcesPowerExperiment() {
                     </div>
                     <p>{tool.description}</p>
                     <div className="resource-power-visual">
-                      <ToolMockup tool={tool} />
+                      {!isOffstage && <ToolMockup tool={tool} />}
                     </div>
                   </article>
                 );

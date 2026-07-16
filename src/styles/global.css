@@ -2935,6 +2935,25 @@ input {
   text-shadow: none;
 }
 
+/* Offstage cards (distance > 2) sit fully behind the visible stack — skip
+   their paint entirely so we don't composite ~26 hidden backdrop-blur layers.
+   visibility flips are discrete, so the transform transition still runs when
+   a card slides back into range. */
+.resource-power-card.is-offstage {
+  visibility: hidden;
+  will-change: auto;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Only the front card needs live mockup animations; frozen side cards read
+   the same at their reduced scale/rotation but stop off-screen repaints. */
+.resource-power-card:not(.is-active) .tool-mockup *,
+.resource-power-card:not(.is-active) .tool-mockup *::before,
+.resource-power-card:not(.is-active) .tool-mockup *::after {
+  animation-play-state: paused !important;
+}
+
 .resource-power-card.is-side {
   cursor: pointer;
 }
