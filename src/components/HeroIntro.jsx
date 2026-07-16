@@ -78,6 +78,7 @@ export function HeroIntro() {
     let sectionHeight = 0;
     let viewportH     = window.innerHeight;
     let shellHeight   = 0;
+    let restHiddenFrac = 0.49;
     let canvasW = 0, canvasH = 0;
 
     const measure = () => {
@@ -85,6 +86,11 @@ export function HeroIntro() {
       sectionHeight = el.offsetHeight;
       viewportH     = window.innerHeight;
       shellHeight   = shell ? shell.offsetHeight : 0;
+      // On a wide desktop screen, hiding all but the top 1% of the shell at
+      // rest still leaves a believable "it continues below" hint. On a tall
+      // portrait phone the same ratio leaves a huge dead gap between the
+      // copy and that sliver, so peek a lot more of it on narrow viewports.
+      restHiddenFrac = window.innerWidth <= 900 ? 0.32 : 0.49;
       if (canvas && ctx) {
         const dpr = window.devicePixelRatio || 1;
         canvasW = canvas.offsetWidth;
@@ -155,7 +161,7 @@ export function HeroIntro() {
       // At rest, only the top 1% of the shell peeks above the viewport bottom
       // as a hint that the interface continues below — the rest rises into
       // view as the user scrolls.
-      const ifTYStart = viewportH * 0.5 + (shell ? shellHeight * 0.49 : viewportH * 0.495);
+      const ifTYStart = viewportH * 0.5 + (shell ? shellHeight * restHiddenFrac : viewportH * 0.495);
       const ifTY      = lerp(ifTYStart, viewportH * 0.05, ip);
       if (shell) {
         shell.style.transform =

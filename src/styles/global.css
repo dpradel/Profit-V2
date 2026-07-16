@@ -1081,6 +1081,7 @@ input {
 
 .highlight-card {
   position: relative;
+  cursor: pointer;
   border-radius: 30px;
   background: rgba(18, 18, 18, 0.68);
   border: 1px solid rgba(255, 255, 255, 0.07);
@@ -1136,7 +1137,8 @@ input {
   transition: filter 0.55s cubic-bezier(0.4, 0, 0.2, 1), transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.highlight-card:hover .highlight-card-image {
+.highlight-card:hover .highlight-card-image,
+.highlight-card.is-open .highlight-card-image {
   filter: blur(7px);
   transform: scale(1.03);
 }
@@ -1158,7 +1160,8 @@ input {
   pointer-events: none;
 }
 
-.highlight-card:hover .highlight-card-hover-content {
+.highlight-card:hover .highlight-card-hover-content,
+.highlight-card.is-open .highlight-card-hover-content {
   opacity: 1;
 }
 
@@ -1173,7 +1176,8 @@ input {
               transform 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.08s;
 }
 
-.highlight-card:hover .highlight-card-hover-text {
+.highlight-card:hover .highlight-card-hover-text,
+.highlight-card.is-open .highlight-card-hover-text {
   opacity: 1;
   transform: translateY(0);
 }
@@ -1211,7 +1215,8 @@ input {
               transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.highlight-card:hover .highlight-card-visual {
+.highlight-card:hover .highlight-card-visual,
+.highlight-card.is-open .highlight-card-visual {
   filter: blur(7px);
   transform: scale(1.03);
 }
@@ -15712,7 +15717,7 @@ input {
     align-items: center;
     justify-content: center;
     gap: 5px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 0;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.06);
     padding: 0;
@@ -15745,10 +15750,13 @@ input {
     display: grid;
     gap: 16px;
     padding: 24px 34px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    /* Match the navbar pill's own glass treatment instead of a near-opaque
+       fill, so the blur actually reads instead of looking like a flat panel. */
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 28px;
-    background: rgba(0, 0, 0, 0.82);
-    backdrop-filter: blur(22px);
+    background: rgba(0, 0, 0, 0.46);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     opacity: 0;
     pointer-events: none;
     transform: translateY(-8px);
@@ -20090,11 +20098,12 @@ input {
   .resource-power-carousel {
     height: 524px;
     margin-top: 36px;
-  }
-
-  .resource-power-carousel::before,
-  .resource-power-carousel::after {
-    width: 72px;
+    /* The 3D stack always shows slivers of the neighboring cards peeking
+       past the active one — on a narrow viewport that peek reaches (and
+       gets hard-clipped by) the screen edge instead of the desktop's
+       roomy margins. Fade it out instead of cutting it off. */
+    mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
   }
 
   .resource-power-card {
@@ -21822,6 +21831,13 @@ input {
     left: auto;
     right: auto;
     bottom: auto;
+  }
+
+  /* The phone shot is a tall portrait photo — at full container width it
+     blows up to fill the whole viewport height. Cap it to a sane size. */
+  .plt-dev-pos--phone {
+    width: min(220px, 60%);
+    margin: 0 auto;
   }
 
   .plt-float-block {

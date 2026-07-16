@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { CardVisualCapital } from "./CardVisualCapital.jsx";
 import { CardVisualMercado } from "./CardVisualMercado.jsx";
 import { CardVisualPerformance } from "./CardVisualPerformance.jsx";
@@ -43,6 +43,7 @@ const cards = [
 export function ProductHighlightCardsAnimated() {
   const ref = useRef(null);
   const inView = useInView(ref);
+  const [openId, setOpenId] = useState(null);
 
   return (
     <section
@@ -51,9 +52,10 @@ export function ProductHighlightCardsAnimated() {
     >
       {cards.map((card, i) => (
         <div
-          className={`highlight-card highlight-card-${card.id}`}
+          className={`highlight-card highlight-card-${card.id}${openId === card.id ? " is-open" : ""}`}
           key={card.id}
           style={{ "--card-index": i }}
+          onClick={() => setOpenId((current) => (current === card.id ? null : card.id))}
         >
           <div className="highlight-card-glow" aria-hidden="true" />
           <h2 className="highlight-card-title">
