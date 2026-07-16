@@ -1,9 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Button } from "./Button.jsx";
 
-// TEMP: testing the standard tier against the HQ one — swap back to
-// "profitweb-banner-matte-hq.mp4" (+ COMPOSITE_WIDTH/HEIGHT 1920/1300) if
-// the standard tier's quality isn't good enough.
+// Standard tier confirmed indistinguishable from HQ — keeping the smaller one.
 const VIDEO_SRC = `${import.meta.env.BASE_URL || "/"}profitweb-banner-matte.mp4`;
 const COMPOSITE_WIDTH = 1280;
 const COMPOSITE_HEIGHT = 867;
