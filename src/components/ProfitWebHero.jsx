@@ -111,10 +111,7 @@ export function ProfitWebHero() {
         if (Math.abs(video.currentTime - t) > 0.005) video.currentTime = t;
       }
 
-      // Skip frames the browser hasn't finished seeking to yet — grabbing a
-      // mid-seek frame during a fast scroll can read a partially decoded
-      // frame, which shows up as heavy streaking/tearing across the canvas.
-      if (!video.seeking) drawComposite();
+      drawComposite();
 
       if (copy) {
         const cp = clamp(smooth / 0.4, 0, 1);
