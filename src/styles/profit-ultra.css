@@ -1093,12 +1093,12 @@
     /* Fixed share of the stage instead of flex:1 — the copy block below
        has no flex-basis of its own, so it was sizing to its natural
        content height first and leaving the video whatever was left
-       (often a sliver). Giving the video a guaranteed ~48% keeps both
+       (often a sliver). Giving the video a guaranteed share keeps both
        halves visible regardless of copy length. */
     position: relative;
     inset: auto;
     width: 100%;
-    flex: 0 0 48%;
+    flex: 0 0 53%;
     min-height: 0;
   }
   .pu-hero-copy {
@@ -1125,6 +1125,17 @@
   }
   .pu-hero-pill {
     margin-top: 16px;
+  }
+  .pu-hero-vignette {
+    /* Desktop sizes this inset:0 over the whole sticky stage because the
+       video is full-bleed behind the copy there. On mobile the video and
+       copy are stacked as separate halves — inset:0 still spanned the
+       whole stage, so the gradient's opaque-black tail (meant to fade the
+       video's bottom edge) landed inside the copy half instead, showing
+       as a dark box over the logo/title. Confine it to the video half. */
+    top: 0;
+    bottom: auto;
+    height: 53%;
   }
   /* Inside Track's -60vh pull (below) is tuned for the desktop hero's
      proportions — it's what makes the "rises over the hero" parallax work
@@ -1183,6 +1194,23 @@
   .pu-plan-features,
   .pu-plan-buy {
     min-width: 0;
+  }
+  /* Acesso simultaneo: .pu-card-visual's shared min-height:260px is tuned
+     for the mockup-based cards (content ~324px, gets clipped down). The
+     device icons here are bottom-anchored and only ~120-150px tall, so
+     that floor left 100+px of dead air above them. Shrink this card's
+     visual box to its actual content instead of the shared floor. */
+  .pu-card:has(.pu-devices) {
+    min-height: 0;
+  }
+  .pu-card:has(.pu-devices) .pu-card-visual {
+    min-height: 0;
+    flex: 0 0 auto;
+    height: 160px;
+    margin-bottom: 24px;
+  }
+  .pu-card:has(.pu-devices) .pu-devices {
+    min-height: 0;
   }
 }
 @media (max-width: 640px) {

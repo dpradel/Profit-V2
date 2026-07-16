@@ -374,10 +374,8 @@ function InsideTrackSection() {
             e diretoria das empresas e muito mais.
           </p>
         </div>
-        <div ref={parallaxRef}>
-          <div className="pu-inside-visual">
-            <UltraMockup toolId="inside-track" />
-          </div>
+        <div ref={parallaxRef} className="pu-inside-visual">
+          <UltraMockup toolId="inside-track" />
         </div>
       </div>
     </section>
