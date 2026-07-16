@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { planOptions, toolResources } from "../data/toolResourcesData.jsx";
 import { PlanSelector, ToolMockup } from "./ToolResourcesShowcase.jsx";
+import { ScaleToFit } from "./ScaleToFit.jsx";
 
 const foregroundAnimationToolIds = new Set([
   "bm-c-news",
@@ -388,7 +389,11 @@ export function ToolResourcesPowerExperiment() {
                     </div>
                     <p>{tool.description}</p>
                     <div className="resource-power-visual">
-                      {!isOffstage && <ToolMockup tool={tool} />}
+                      {!isOffstage && (
+                        <ScaleToFit>
+                          <ToolMockup tool={tool} />
+                        </ScaleToFit>
+                      )}
                     </div>
                   </article>
                 );

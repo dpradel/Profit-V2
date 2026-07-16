@@ -53,10 +53,11 @@ export function HeroIntro() {
     // Trigger entrance animations
     const entranceRaf = requestAnimationFrame(() => el.classList.add("is-visible"));
 
-    // Skip scroll-driven parallax on mobile/reduced-motion — CSS already falls back
-    const isMobile            = window.innerWidth <= 900;
+    // Reduced motion only — the scroll-driven rise/cover effect now also
+    // runs on mobile (see .hero-stage's sticky pin in global.css), matching
+    // the desktop experience instead of a static stacked fallback.
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (isMobile || prefersReducedMotion) {
+    if (prefersReducedMotion) {
       return () => cancelAnimationFrame(entranceRaf);
     }
 

@@ -4,6 +4,7 @@ import { Button, ButtonRow } from "../components/Button.jsx";
 import { SiteFooter } from "../components/SiteFooter.jsx";
 import { SiteHeader } from "../components/SiteHeader.jsx";
 import { ToolMockup } from "../components/ToolResourcesShowcase.jsx";
+import { ScaleToFit } from "../components/ScaleToFit.jsx";
 import { toolResources } from "../data/toolResourcesData.jsx";
 import mockupLaptop from "../assets/home/mockup-laptop.webp";
 import mockupTablet from "../assets/home/mockup-tablet.webp";
@@ -73,44 +74,6 @@ function useParallax(strength = 40) {
     return () => cancelAnimationFrame(rafId);
   }, [strength]);
   return ref;
-}
-
-/* Scales its children uniformly to fit the available box, centered,
-   so a mockup built at a fixed pixel size is always shown in full —
-   never cropped, whatever the card's dimensions are. */
-function ScaleToFit({ children }) {
-  const outerRef = useRef(null);
-  const innerRef = useRef(null);
-  const [scale, setScale] = useState(1);
-
-  useEffect(() => {
-    const outer = outerRef.current;
-    const inner = innerRef.current;
-    if (!outer || !inner) return;
-
-    const update = () => {
-      const availW = outer.clientWidth;
-      const availH = outer.clientHeight;
-      const naturalW = inner.scrollWidth;
-      const naturalH = inner.scrollHeight;
-      if (!availW || !availH || !naturalW || !naturalH) return;
-      setScale(Math.min(availW / naturalW, availH / naturalH, 1));
-    };
-
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(outer);
-    ro.observe(inner);
-    return () => ro.disconnect();
-  }, []);
-
-  return (
-    <div ref={outerRef} className="pu-scale-fit">
-      <div ref={innerRef} className="pu-scale-fit-inner" style={{ transform: `scale(${scale})` }}>
-        {children}
-      </div>
-    </div>
-  );
 }
 
 /* Animated tool mockup: plays its intro once each time it enters the

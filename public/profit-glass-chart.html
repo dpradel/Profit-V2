@@ -75,6 +75,21 @@
             box-shadow: 0 0 14px rgba(5, 116, 222, 0.65), 0 0 5px rgba(56, 189, 248, 0.4);
         }
 
+        /* This document renders inside an <iframe> whose box shrinks to fit
+           the hero on small screens — media queries here respond to that
+           iframe's own width, not the outer page's. The menu items don't
+           fit a narrow phone-width frame, so keep just the logo there. */
+        @media (max-width: 480px) {
+            .menu-item {
+                display: none;
+            }
+            .logo-area {
+                margin-right: 0;
+                padding-right: 0;
+                border-right: none;
+            }
+        }
+
         /* Data Bar */
         .data-bar {
             height: 36px;

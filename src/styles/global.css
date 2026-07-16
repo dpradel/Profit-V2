@@ -1073,6 +1073,12 @@ input {
   padding: 0 0 80px;
 }
 
+@media (max-width: 760px) {
+  .highlight-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
 .highlight-card {
   position: relative;
   border-radius: 30px;
@@ -15227,6 +15233,14 @@ input {
   gap: clamp(40px, 6vw, 100px);
 }
 
+@media (max-width: 760px) {
+  .corretoras-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 28px;
+  }
+}
+
 .corretoras-icon-wrap {
   position: relative;
   flex-shrink: 0;
@@ -15645,6 +15659,22 @@ input {
   border: 0;
 }
 
+/* Used by ScaleToFit.jsx — scales fixed-size content down uniformly to fit
+   whatever box it's placed in, instead of letting it get cropped. */
+.scale-fit {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.scale-fit-inner {
+  transform-origin: center center;
+  will-change: transform;
+}
+
 @media (max-width: 900px) {
   .site-nav {
     top: 20px;
@@ -15674,21 +15704,37 @@ input {
   }
 
   .menu-button {
-    width: 24px;
-    height: 18px;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    border: 0;
-    background: transparent;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
     padding: 0;
     cursor: pointer;
   }
 
   .menu-button span {
+    width: 18px;
     height: 2px;
     border-radius: 999px;
     background: #fff;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .site-nav.is-open .menu-button span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .site-nav.is-open .menu-button span:nth-child(2) {
+    opacity: 0;
+  }
+  .site-nav.is-open .menu-button span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
   }
 
   .mobile-panel {
@@ -20099,15 +20145,37 @@ input {
     bottom: 0;
     height: 236px;
     border-radius: 10px 10px 0 0;
+    /* The mockup scenes are built from absolutely positioned children
+       calibrated for the desktop box — shrinking this container via
+       height alone just clips them instead of scaling them down.
+       ScaleToFit (wrapping <ToolMockup> in JSX) handles the resize
+       instead, so let the mockup render at its natural size here. */
+    overflow: hidden;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+
+  .resource-power-visual::after {
+    display: none;
   }
 
   .resource-power-visual .tool-mockup {
-    height: 236px;
+    width: auto;
+    height: auto;
+    place-items: center;
+    animation: none;
   }
 
   .resource-power-visual .tool-window {
-    height: 266px;
-    transform: translateY(0);
+    width: 560px;
+    height: 324px;
+    transform: none;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+
+  .resource-power-visual .tool-window::after {
+    display: none;
   }
 
   .resource-power-dock {
@@ -21317,44 +21385,19 @@ input {
 /* Entrance for copy-wrap children still uses existing enterUp via selectors:
    .hero-intro .hero-copy h1 / .hero-copy p / .hero-actions — those still match */
 
-/* ── Responsive ≤ 900px: static layout, no sticky/rise ── */
+/* ── Responsive ≤ 900px: same sticky rise/cover as desktop, just resized —
+   the scroll-driven JS in HeroIntro.jsx now runs on mobile too. 100dvh
+   (not 100vh) avoids the pin jumping as the address bar shows/hides. ── */
 @media (max-width: 900px) {
   .hero-intro {
-    height: auto !important;
-    min-height: 100vh !important;
+    height: 200dvh;
   }
 
   .hero-stage {
-    position: static !important;
-    height: auto !important;
-    min-height: 100vh;
-    padding: 122px 28px 76px;
-    overflow: visible !important;
-    display: block !important;
-  }
-
-  .hero-copy-wrap {
-    position: static !important;
-    left: auto !important;
-    top: auto !important;
-    transform: none !important;
-    width: 100% !important;
-    max-width: 760px;
-    margin: 0 auto;
-    opacity: 1 !important;
-  }
-
-  .hero-platform-visual {
-    position: static !important;
-    inset: auto !important;
-    margin-top: 42px;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
+    height: 100dvh;
   }
 
   .hero-intro .hero-interface-shell {
-    transform: none !important;
     width: min(940px, 106vw);
   }
 }
@@ -21752,9 +21795,62 @@ input {
 
 @media (max-width: 600px) {
   .plt-section { padding: 80px 0 60px; }
-  .plt-laptop-anchor { width: 85%; }
   .plt-header { margin-bottom: 44px; }
 }
+
+/* The desktop diorama depends on :hover to reveal each device's caption —
+   there's no equivalent on touch (a tap can trigger :hover in some mobile
+   browsers but leaves the tiny, absolutely-positioned card cramped and
+   unreadable). Below 760px, stack the devices as a simple vertical list
+   instead, with captions always visible underneath each one. */
+@media (max-width: 760px) {
+  .plt-laptop-anchor {
+    position: static;
+    width: 100%;
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+
+  .plt-dev-pos--monitor,
+  .plt-dev-pos--laptop,
+  .plt-dev-pos--tablet,
+  .plt-dev-pos--phone {
+    position: static;
+    width: 100%;
+    left: auto;
+    right: auto;
+    bottom: auto;
+  }
+
+  .plt-float-block {
+    display: none;
+  }
+
+  .plt-dev-hover-wrap {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .plt-hover-card {
+    position: static;
+    opacity: 1;
+    pointer-events: none;
+    transform: none !important;
+    margin-top: 18px;
+  }
+
+  .plt-hover-chip {
+    font-size: 13px;
+  }
+
+  .plt-hover-subtitle {
+    font-size: 13px;
+    margin-top: 8px;
+  }
+}
+
 /* ─── TestimonialsSection ───────────────────────────────────────────── */
 
 .tst-section {
