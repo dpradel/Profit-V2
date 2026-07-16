@@ -645,7 +645,15 @@ function FreqTabs({ options, selected, onSelect }) {
       if (!activeTab || !tabs) return;
       const tabRect = activeTab.getBoundingClientRect();
       const tabsRect = tabs.getBoundingClientRect();
-      setIndicator({ left: tabRect.left - tabsRect.left, width: tabRect.width });
+      // Also track top/height, not just left/width — on mobile the tabs
+      // wrap to two rows, and a horizontal-only indicator stays glued to
+      // the first row no matter which row is actually selected.
+      setIndicator({
+        left: tabRect.left - tabsRect.left,
+        top: tabRect.top - tabsRect.top,
+        width: tabRect.width,
+        height: tabRect.height,
+      });
     };
     update();
     const onResize = () => requestAnimationFrame(update);
@@ -666,7 +674,11 @@ function FreqTabs({ options, selected, onSelect }) {
       {indicator && (
         <span
           className="pu-freq-indicator"
-          style={{ transform: `translateX(${indicator.left}px)`, width: `${indicator.width}px` }}
+          style={{
+            transform: `translate(${indicator.left}px, ${indicator.top}px)`,
+            width: `${indicator.width}px`,
+            height: `${indicator.height}px`,
+          }}
           aria-hidden="true"
         />
       )}

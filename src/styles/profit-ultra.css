@@ -710,9 +710,11 @@
   display: block;
   position: absolute;
   left: 0;
-  top: 5px;
+  top: 0;
   z-index: 0;
-  height: calc(100% - 10px);
+  /* width/height/transform (translate, not top/left) are set inline from
+     the measured tab rect — needed on mobile, where the tabs wrap to two
+     rows and a single fixed height can't cover both. */
   overflow: hidden;
   border-radius: 999px;
   background: linear-gradient(160deg, #fff -20%, #a855f7 40%, #7c3aed 100%);
@@ -812,7 +814,7 @@
   gap: 6px;
 }
 .pu-plan-price strong {
-  font-size: 40px;
+  font-size: clamp(28px, 8vw, 40px);
   font-weight: 700;
   letter-spacing: -0.03em;
   color: #fff;
@@ -839,7 +841,8 @@
 }
 .pu-brokers-heading {
   text-align: center;
-  margin-bottom: 56px;
+  width: min(760px, calc(100% - 48px));
+  margin: 0 auto 56px;
 }
 .pu-brokers-grid {
   width: min(1180px, calc(100% - 48px));
@@ -1073,9 +1076,29 @@
 /* Responsive */
 @media (max-width: 1024px) {
   /* Keep the sticky pin + scroll-scrub (same as desktop) — 100dvh instead
-     of 100vh so it doesn't jump as the address bar shows/hides. */
+     of 100vh so it doesn't jump as the address bar shows/hides. Desktop
+     overlaps the video full-bleed behind the copy (readable there because
+     the copy sits in the top half and the video vignette darkens toward
+     the edges) — on a narrow screen that just buries a shrunken video
+     behind the text. Stack them instead: video first (bigger, in front),
+     copy below it. */
   .pu-hero-stage {
     height: 100dvh;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 84px 20px 32px;
+    gap: 20px;
+  }
+  .pu-hero-media-wrap {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+  }
+  .pu-hero-copy {
+    padding: 0 12px;
+    transform: none;
   }
   /* Inside Track's -60vh pull (below) is tuned for the desktop hero's
      proportions — it's what makes the "rises over the hero" parallax work
@@ -1090,7 +1113,11 @@
   }
   .pu-card,
   .pu-card-lg {
-    min-height: 440px;
+    /* Was 440px, a floor tuned for the longest card copy. Single-column
+       mobile cards size independently now, so a short-copy card (like
+       "Acesso simultâneo") still gets stretched to that floor, leaving a
+       dead gap between its copy and its flex:1 visual below. */
+    min-height: 380px;
   }
   .pu-brokers-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1107,18 +1134,32 @@
     grid-template-columns: 1fr;
     gap: 34px;
   }
+  /* Grid items default to min-width: auto, sizing to their content's
+     intrinsic width rather than the 1fr track — once these switch to a
+     single column above, that let the copy/visual push wider than the
+     viewport instead of wrapping, overflowing the whole page. */
+  .pu-inside-copy,
+  .pu-inside-visual,
+  .pu-remote-copy,
+  .pu-remote-visual,
+  .pu-plan-features,
+  .pu-plan-buy {
+    min-width: 0;
+  }
 }
 @media (max-width: 640px) {
-  .pu-hero-copy {
-    transform: translateY(-4vh);
-  }
   .pu-brokers-grid {
     grid-template-columns: 1fr;
   }
   .pu-cmp-row {
-    grid-template-columns: 1fr 74px 74px;
-    padding: 13px 16px;
-    font-size: 13.5px;
+    grid-template-columns: 1fr 64px 64px;
+    padding: 13px 12px;
+    font-size: 13px;
+    gap: 6px;
+  }
+  .pu-cmp-head {
+    font-size: 10.5px;
+    letter-spacing: 0.02em;
   }
   .pu-plan-card {
     padding: 28px 22px 30px;
