@@ -255,10 +255,15 @@
   max-width: 1080px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
+  grid-template-columns: 0.95fr 1.05fr;
   align-items: center;
   gap: 56px;
 }
+
+/* Hero's visual sits on the right, so flip this one to the left —
+   keeps the page from stacking two right-hand images back to back. */
+.bx-mobile-copy { order: 2; }
+.bx-mobile-visual { order: 1; }
 
 .bx-stores {
   display: flex;
