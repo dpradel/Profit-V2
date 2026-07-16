@@ -10,16 +10,22 @@ import mockupLaptop from "../assets/home/mockup-laptop.webp";
 import mockupTablet from "../assets/home/mockup-tablet.webp";
 import mockupPhone from "../assets/home/mockup-phone.webp";
 
-// TEMP: back on the HQ tier per request — swap to "profit-ultra-hero-matte.mp4"
-// (+ COMPOSITE_WIDTH/HEIGHT 960/540) if it's too heavy again (it was, last time).
 const HERO_VIDEO_SRC = `${import.meta.env.BASE_URL || "/"}profit-ultra-hero-matte-hq.mp4`;
 // The mp4 stacks two plain (non-alpha) frames: color on top, a white-on-black
 // luma matte on the bottom. Safari (and every other browser) can decode
 // yuv420p H.264 without trouble — real per-pixel alpha video has never been
 // reliable in <video> across browsers, so we composite it ourselves onto a
 // <canvas> each frame using the matte as the alpha channel.
-const COMPOSITE_WIDTH = 1920;
-const COMPOSITE_HEIGHT = 1080;
+//
+// This is deliberately much lower than the HQ source's native 1920x1080:
+// the getImageData/putImageData work in drawComposite() below scales with
+// this resolution, not the source's — matching it 1:1 to a 1920x1080 video
+// was 4x the pixel-pushing of the proven-smooth 960x540 setup and was the
+// actual cause of "laggy on first scroll" (a compositing cost problem, not
+// a video-loading one). drawImage still downsamples from the sharper HQ
+// source, so this keeps most of the quality gain at a fraction of the cost.
+const COMPOSITE_WIDTH = 1280;
+const COMPOSITE_HEIGHT = 720;
 const ULTRA_LOGO = `${import.meta.env.BASE_URL || "/"}logo-profit-ultra.svg`;
 const BROKER_LOGO = (file) => `${import.meta.env.BASE_URL || "/"}logos-corretoras/${file}`;
 
